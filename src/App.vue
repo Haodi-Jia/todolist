@@ -5,7 +5,7 @@
       <div class="header-content">
         <h1 class="main-title">
           <span class="title-icon">🌸</span>
-          武大必做100件事
+          WHU Todo
           <span class="title-icon">🏛️</span>
         </h1>
         <p class="subtitle">在珞珈山下，留下属于你的青春印记</p>
