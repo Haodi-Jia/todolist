@@ -2,14 +2,14 @@
   <div class="todo-card" :class="{ 'completed': todo.complete, 'left': position === 'left', 'right': position === 'right' }">
     <div class="card-content">
       <div class="card-header">
-        <label class="checkbox-container">
+        <div class="checkbox-container">
           <input 
             type="checkbox" 
             :checked="todo.complete"
-            @change="toggleComplete"
+            disabled
           />
           <span class="checkmark"></span>
-        </label>
+        </div>
         <h3 class="card-title">{{ todo.title }}</h3>
       </div>
       
@@ -71,23 +71,9 @@ interface Props {
   position: 'left' | 'right';
 }
 
-interface Emits {
-  (e: 'update', todo: Todo): void;
-}
-
 const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
 
 const currentImageIndex = ref(0);
-
-const toggleComplete = () => {
-  const updatedTodo = {
-    ...props.todo,
-    complete: !props.todo.complete,
-    date: !props.todo.complete ? new Date().toISOString() : ''
-  };
-  emit('update', updatedTodo);
-};
 
 const formatDate = (dateString: string) => {
   if (!dateString) return '';
@@ -183,7 +169,6 @@ const handleImageError = (event: Event) => {
 
 .checkbox-container {
   position: relative;
-  cursor: pointer;
   display: block;
   margin-top: 0.2rem;
 }
@@ -191,7 +176,6 @@ const handleImageError = (event: Event) => {
 .checkbox-container input {
   position: absolute;
   opacity: 0;
-  cursor: pointer;
   height: 0;
   width: 0;
 }
@@ -206,10 +190,6 @@ const handleImageError = (event: Event) => {
   transition: all 0.3s ease;
 }
 
-.checkbox-container:hover .checkmark {
-  border-color: #4CAF50;
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
-}
 
 .checkbox-container input:checked ~ .checkmark {
   background-color: #4CAF50;

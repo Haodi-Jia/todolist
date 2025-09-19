@@ -27,7 +27,6 @@
           :key="todo.id"
           :todo="todo"
           :position="index % 2 === 0 ? 'left' : 'right'"
-          @update="updateTodo"
           :style="{ animationDelay: `${index * 0.1}s` }"
         />
       </div>
@@ -61,13 +60,16 @@ const loadTodos = async () => {
   }
 };
 
-// 排序逻辑：先按是否有日期排序，有日期的按日期排序，没有日期的按原始顺序排序
+// 排序逻辑：根据date字段排序，有日期的在前且按日期排序，没有日期的保持原顺序在后
 const sortedTodos = computed(() => {
   const todosWithDate = todos.value.filter(todo => todo.date && todo.date.trim() !== '');
   const todosWithoutDate = todos.value.filter(todo => !todo.date || todo.date.trim() === '');
   
-  // 有日期的按日期排序
+  // 有日期的按日期排序（最早的在前面）
   todosWithDate.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  
+  // 没有日期的保持原来的id顺序
+  todosWithoutDate.sort((a, b) => a.id - b.id);
   
   // 返回合并后的数组：有日期的在前，没有日期的在后
   return [...todosWithDate, ...todosWithoutDate];
@@ -80,40 +82,6 @@ const completionPercentage = computed(() =>
   totalCount.value > 0 ? Math.round((completedCount.value / totalCount.value) * 100) : 0
 );
 
-// 更新todo状态
-const updateTodo = (updatedTodo: Todo) => {
-  const index = todos.value.findIndex(todo => todo.id === updatedTodo.id);
-  if (index !== -1) {
-    todos.value[index] = updatedTodo;
-    // 这里可以添加保存到本地存储或发送到服务器的逻辑
-    saveTodos();
-  }
-};
-
-// 保存todos到本地存储
-const saveTodos = () => {
-  localStorage.setItem('wuda-todos', JSON.stringify(todos.value));
-};
-
-// 从本地存储加载已保存的状态
-const loadSavedTodos = () => {
-  const saved = localStorage.getItem('wuda-todos');
-  if (saved) {
-    try {
-      const savedTodos = JSON.parse(saved);
-      // 合并保存的状态和原始数据
-      todos.value.forEach(todo => {
-        const savedTodo = savedTodos.find((saved: Todo) => saved.id === todo.id);
-        if (savedTodo) {
-          todo.complete = savedTodo.complete;
-          todo.date = savedTodo.date;
-        }
-      });
-    } catch (error) {
-      console.error('Failed to load saved todos:', error);
-    }
-  }
-};
 
 // 生成樱花飘落样式
 const getSakuraStyle = (n: number) => {
@@ -133,7 +101,6 @@ const getSakuraStyle = (n: number) => {
 
 onMounted(async () => {
   await loadTodos();
-  loadSavedTodos();
 });
 </script>
 
